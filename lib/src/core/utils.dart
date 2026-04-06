@@ -122,20 +122,40 @@ bool isReservationInFuture(String date, String startTime) {
 }
 
 String collapseApiException(ApiException error) {
-  if (error.fieldErrors.isEmpty) {
-    return error.message;
-  }
+  final summary = _trimAggregateSuffix(_normalizeErrorText(error.message));
+  final fieldMessages = <String>[];
+  final seenMessages = <String>{};
 
-  final buffer = StringBuffer(error.message);
-  for (final entry in error.fieldErrors.entries) {
-    if (entry.value.isEmpty) {
-      continue;
+  void addFieldMessage(String rawMessage) {
+    final normalized = _trimAggregateSuffix(_normalizeErrorText(rawMessage));
+    if (normalized.isEmpty || !seenMessages.add(normalized)) {
+      return;
     }
 
-    buffer.write('\n• ${entry.value.join(' ')}');
+    fieldMessages.add(normalized);
   }
 
-  return buffer.toString();
+  for (final entry in error.fieldErrors.entries) {
+    for (final message in entry.value) {
+      addFieldMessage(message);
+    }
+  }
+
+  if (fieldMessages.isEmpty) {
+    return summary;
+  }
+
+  final lines = <String>[];
+  if (summary.isNotEmpty && !seenMessages.contains(summary)) {
+    lines.add(summary);
+  }
+
+  if (fieldMessages.length == 1 && lines.isEmpty) {
+    return fieldMessages.first;
+  }
+
+  lines.addAll(fieldMessages.map((message) => '• $message'));
+  return lines.join('\n');
 }
 
 String describeUnexpectedError(Object error) {
@@ -153,9 +173,44 @@ String describeUnexpectedError(Object error) {
 
   for (final prefix in prefixes) {
     if (raw.startsWith(prefix)) {
-      return raw.substring(prefix.length).trim();
+      return _trimAggregateSuffix(
+        _normalizeErrorText(raw.substring(prefix.length).trim()),
+      );
     }
   }
 
-  return raw;
+  return _trimAggregateSuffix(_normalizeErrorText(raw));
+}
+
+String _normalizeErrorText(String raw) {
+  if (raw.trim().isEmpty) {
+    return '';
+  }
+
+  final withoutHtml = raw
+      .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
+      .replaceAll(RegExp(r'</p\s*>', caseSensitive: false), '\n')
+      .replaceAll(RegExp(r'<[^>]+>'), '')
+      .replaceAll('&nbsp;', ' ')
+      .replaceAll('&amp;', '&')
+      .replaceAll('&quot;', '"')
+      .replaceAll('&#39;', "'")
+      .replaceAll('&lt;', '<')
+      .replaceAll('&gt;', '>');
+
+  final lines = withoutHtml
+      .split('\n')
+      .map((line) => line.replaceAll(RegExp(r'\s+'), ' ').trim())
+      .where((line) => line.isNotEmpty);
+
+  return lines.join('\n');
+}
+
+String _trimAggregateSuffix(String raw) {
+  return raw
+      .replaceAll(
+        RegExp(r'\s*\(and \d+ more errors?\)\s*', caseSensitive: false),
+        '',
+      )
+      .trim();
 }

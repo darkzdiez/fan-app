@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'branding.dart';
+
 class FanLoadingView extends StatelessWidget {
   const FanLoadingView({super.key, this.message = 'Cargando...'});
 
@@ -19,6 +21,8 @@ class FanLoadingView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              const FanBrandLogo(height: 72),
+              const SizedBox(height: 20),
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
               Text(
@@ -116,16 +120,10 @@ class SectionCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        title,
-                        style: theme.textTheme.titleMedium,
-                      ),
+                      Text(title, style: theme.textTheme.titleMedium),
                       if (subtitle != null) ...<Widget>[
                         const SizedBox(height: 4),
-                        Text(
-                          subtitle!,
-                          style: theme.textTheme.bodySmall,
-                        ),
+                        Text(subtitle!, style: theme.textTheme.bodySmall),
                       ],
                     ],
                   ),
@@ -150,10 +148,16 @@ class FanErrorBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final lines = message
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .toList();
+    final textStyle = TextStyle(color: scheme.onErrorContainer, height: 1.35);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
         color: scheme.errorContainer,
         borderRadius: BorderRadius.circular(16),
@@ -165,10 +169,18 @@ class FanErrorBanner extends StatelessWidget {
           Icon(Icons.error_outline, color: scheme.error),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              message,
-              style: TextStyle(color: scheme.onErrorContainer),
-            ),
+            child: lines.length <= 1
+                ? Text(message, style: textStyle)
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      for (var index = 0; index < lines.length; index++)
+                        Padding(
+                          padding: EdgeInsets.only(top: index == 0 ? 0 : 4),
+                          child: Text(lines[index], style: textStyle),
+                        ),
+                    ],
+                  ),
           ),
         ],
       ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../core/app_environment.dart';
 import '../../core/app_scope.dart';
+import '../../core/app_theme.dart';
+import '../../core/branding.dart';
 import '../../core/models.dart';
 import '../../core/utils.dart';
 import '../../core/widgets.dart';
@@ -61,130 +63,353 @@ class _LoginScreenState extends State<LoginScreen> {
     final scheme = theme.colorScheme;
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: <Color>[
-              Color(0xFF2F3135),
-              Color(0xFFF2F5F8),
-            ],
-            stops: <double>[0, 0.36],
+      body: Stack(
+        children: <Widget>[
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: <Color>[
+                  Color(0xFF2F3135),
+                  Color(0xFF49505A),
+                  Color(0xFFF2F5F8),
+                ],
+                stops: <double>[0, 0.22, 0.7],
+              ),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(28),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.12),
+          const _LoginBackgroundOrb(
+            top: -80,
+            left: -70,
+            size: 240,
+            color: Color(0x220B9BCB),
+          ),
+          const _LoginBackgroundOrb(
+            top: 88,
+            right: -90,
+            size: 220,
+            color: Color(0x14FFFFFF),
+          ),
+          const _LoginBackgroundOrb(
+            bottom: -120,
+            left: 30,
+            size: 260,
+            color: Color(0x180B9BCB),
+          ),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 540),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(34),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: <Color>[
+                                Color(0xFFFFFFFF),
+                                Color(0xFFF8FBFD),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(34),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.85),
+                            ),
+                            boxShadow: const <BoxShadow>[
+                              BoxShadow(
+                                color: Color(0x24000000),
+                                blurRadius: 34,
+                                offset: Offset(0, 18),
+                              ),
+                            ],
+                          ),
+                          child: Stack(
+                            children: <Widget>[
+                              Positioned(
+                                top: -54,
+                                right: -36,
+                                child: Container(
+                                  width: 150,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: FanAppTheme.brandBlue.withValues(
+                                      alpha: 0.08,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: -52,
+                                left: -24,
+                                child: Container(
+                                  width: 120,
+                                  height: 120,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0x0D18212B),
+                                  ),
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 28,
+                                  vertical: 26,
+                                ),
+                                child: Center(child: FanBrandLogo(height: 154)),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      child: Column(
-                        children: <Widget>[
-                          CircleAvatar(
-                            radius: 28,
-                            backgroundColor: scheme.primary,
-                            foregroundColor: Colors.white,
-                            child: const Icon(Icons.hub_outlined, size: 28),
+                      const SizedBox(height: 26),
+                      if (AppEnvironment.usesDefaultApiBaseUrl)
+                        const FanErrorBanner(
+                          message:
+                              'La app está usando la URL por defecto http://127.0.0.1:8000/api. El puerto 3000 solo publica el frontend. Para este ambiente ejecutala con flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api',
+                        ),
+                      if (AppEnvironment.usesDefaultApiBaseUrl)
+                        const SizedBox(height: 18),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.96),
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.92),
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'FAN App',
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              color: Colors.white,
+                          boxShadow: const <BoxShadow>[
+                            BoxShadow(
+                              color: Color(0x15000000),
+                              blurRadius: 32,
+                              offset: Offset(0, 16),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Acceso para incubadas a perfil, organización y reservas.',
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.86),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    if (AppEnvironment.usesDefaultApiBaseUrl)
-                      const FanErrorBanner(
-                        message:
-                            'La app está usando la URL por defecto http://127.0.0.1:8000/api. El puerto 3000 solo publica el frontend. Para este ambiente ejecutala con flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api',
-                      ),
-                    if (AppEnvironment.usesDefaultApiBaseUrl)
-                      const SizedBox(height: 16),
-                    SectionCard(
-                      title: 'Iniciar sesión',
-                      subtitle: 'Autenticación contra la API externa de FAN.',
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          TextField(
-                            controller: _usernameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Usuario o correo electrónico',
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          TextField(
-                            controller: _passwordController,
-                            obscureText: true,
-                            decoration: const InputDecoration(
-                              labelText: 'Contraseña',
-                            ),
-                            onSubmitted: (_) => _isSubmitting ? null : _submit(),
-                          ),
-                          const SizedBox(height: 16),
-                          if (_errorMessage != null) ...<Widget>[
-                            FanErrorBanner(message: _errorMessage!),
-                            const SizedBox(height: 16),
                           ],
-                          FilledButton.icon(
-                            onPressed: _isSubmitting ? null : _submit,
-                            icon: _isSubmitting
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
+                          child: AutofillGroup(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: <Color>[
+                                            Color(0xFF1AB7E7),
+                                            Color(0xFF0B9BCB),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: const Icon(
+                                        Icons.lock_outline_rounded,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                  )
-                                : const Icon(Icons.login),
-                            label: Text(
-                              _isSubmitting
-                                  ? 'Validando credenciales...'
-                                  : 'Iniciar sesión',
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text(
+                                            'Iniciar sesión',
+                                            style: theme.textTheme.titleLarge
+                                                ?.copyWith(
+                                                  color: FanAppTheme.ink,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Ingresá con tus credenciales para acceder a reservas, perfil e información de tu incubada.',
+                                            style: theme.textTheme.bodyMedium
+                                                ?.copyWith(
+                                                  color: FanAppTheme.muted,
+                                                  height: 1.45,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 24),
+                                TextField(
+                                  controller: _usernameController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  autofillHints: const <String>[
+                                    AutofillHints.username,
+                                    AutofillHints.email,
+                                  ],
+                                  decoration: const InputDecoration(
+                                    hintText: 'Usuario o correo electrónico',
+                                    prefixIcon: Icon(
+                                      Icons.person_outline_rounded,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                TextField(
+                                  controller: _passwordController,
+                                  obscureText: true,
+                                  textInputAction: TextInputAction.done,
+                                  autofillHints: const <String>[
+                                    AutofillHints.password,
+                                  ],
+                                  enableSuggestions: false,
+                                  autocorrect: false,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Contraseña',
+                                    prefixIcon: Icon(Icons.key_outlined),
+                                  ),
+                                  onSubmitted: (_) =>
+                                      _isSubmitting ? null : _submit(),
+                                ),
+                                const SizedBox(height: 16),
+                                if (_errorMessage != null) ...<Widget>[
+                                  FanErrorBanner(message: _errorMessage!),
+                                  const SizedBox(height: 18),
+                                ],
+                                SizedBox(
+                                  height: 56,
+                                  child: FilledButton.icon(
+                                    style: FilledButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      textStyle: theme.textTheme.titleSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                    ),
+                                    onPressed: _isSubmitting ? null : _submit,
+                                    icon: _isSubmitting
+                                        ? const SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Icon(Icons.login_rounded),
+                                    label: Text(
+                                      _isSubmitting
+                                          ? 'Validando credenciales...'
+                                          : 'Iniciar sesión',
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF7FAFC),
+                                    borderRadius: BorderRadius.circular(18),
+                                    border: Border.all(
+                                      color: scheme.outline.withValues(
+                                        alpha: 0.9,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Icon(
+                                        Icons.cloud_outlined,
+                                        size: 18,
+                                        color: scheme.primary,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Text(
+                                              'API actual',
+                                              style: theme.textTheme.labelMedium
+                                                  ?.copyWith(
+                                                    color: FanAppTheme.muted,
+                                                  ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              AppEnvironment.apiBaseUrl,
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                    color: FanAppTheme.ink,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'API actual: ${AppEnvironment.apiBaseUrl}',
-                            style: theme.textTheme.bodySmall,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoginBackgroundOrb extends StatelessWidget {
+  const _LoginBackgroundOrb({
+    required this.size,
+    required this.color,
+    this.top,
+    this.right,
+    this.bottom,
+    this.left,
+  });
+
+  final double size;
+  final Color color;
+  final double? top;
+  final double? right;
+  final double? bottom;
+  final double? left;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: top,
+      right: right,
+      bottom: bottom,
+      left: left,
+      child: IgnorePointer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+          child: SizedBox(width: size, height: size),
         ),
       ),
     );

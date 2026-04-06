@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/app_controller.dart';
 import 'core/app_scope.dart';
 import 'core/app_environment.dart';
+import 'core/branding.dart';
 import 'core/app_theme.dart';
 import 'core/widgets.dart';
 import 'features/auth/login_screen.dart';
@@ -25,7 +26,7 @@ class FanApp extends StatelessWidget {
         animation: controller,
         builder: (context, _) {
           return MaterialApp(
-            title: 'FAN App',
+            title: FanBranding.appName,
             debugShowCheckedModeBanner: false,
             locale: const Locale('es'),
             supportedLocales: const <Locale>[Locale('es')],

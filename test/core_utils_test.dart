@@ -55,4 +55,39 @@ void main() {
       expect(user.userCan('lab-equipment-*'), isFalse);
     });
   });
+
+  group('collapseApiException', () {
+    test('limpia html y evita duplicar el resumen de errores de campos', () {
+      final error = ApiException(
+        statusCode: 422,
+        message:
+            'El campo <strong>Usuario</strong> es obligatorio. (and 1 more error)',
+        fieldErrors: const <String, List<String>>{
+          'username': <String>['El campo <strong>Usuario</strong> es obligatorio.'],
+          'password': <String>[
+            'El campo <strong>Contraseña</strong> es obligatorio.',
+          ],
+        },
+      );
+
+      expect(
+        collapseApiException(error),
+        '• El campo Usuario es obligatorio.\n'
+        '• El campo Contraseña es obligatorio.',
+      );
+    });
+  });
+
+  group('describeUnexpectedError', () {
+    test('limpia prefijos técnicos y html simple', () {
+      expect(
+        describeUnexpectedError(
+          Exception(
+            'El campo <strong>Usuario</strong> es obligatorio. (and 1 more error)',
+          ),
+        ),
+        'El campo Usuario es obligatorio.',
+      );
+    });
+  });
 }

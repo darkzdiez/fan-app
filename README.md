@@ -167,6 +167,13 @@ flutter upgrade \
 && flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
 ```
 
+```bash
+flutter upgrade \
+&& flutter pub outdated \
+&& flutter pub upgrade --major-versions \
+&& flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+```
+
 Actualizar Flutter, revisar dependencias, actualizarlas y generar APK release y debug:
 
 ```bash
