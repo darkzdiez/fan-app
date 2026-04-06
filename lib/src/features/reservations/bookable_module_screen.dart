@@ -617,6 +617,13 @@ class _CalendarTabState extends State<_CalendarTab> {
       );
     }
 
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isCompactCalendar = screenWidth < 640;
+    final isTightCalendar = screenWidth < 390;
+    final weekdayLabels = isCompactCalendar
+        ? const <String>['L', 'M', 'X', 'J', 'V', 'S', 'D']
+        : const <String>['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
     return RefreshIndicator(
       onRefresh: _loadCalendar,
       child: ListView(
@@ -650,9 +657,12 @@ class _CalendarTabState extends State<_CalendarTab> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<int?>(
+                  isExpanded: true,
                   initialValue: _selectedResourceId,
-                  decoration: const InputDecoration(
-                    labelText: 'Filtrar por recurso (opcional)',
+                  decoration: InputDecoration(
+                    labelText: isTightCalendar
+                        ? 'Recurso'
+                        : 'Filtrar por recurso (opcional)',
                   ),
                   items: <DropdownMenuItem<int?>>[
                     const DropdownMenuItem<int?>(
@@ -662,7 +672,10 @@ class _CalendarTabState extends State<_CalendarTab> {
                     ..._resources.map(
                       (resource) => DropdownMenuItem<int?>(
                         value: resource.id,
-                        child: Text(resource.name),
+                        child: Text(
+                          resource.name,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ],
@@ -677,102 +690,54 @@ class _CalendarTabState extends State<_CalendarTab> {
             ),
           ),
           const SizedBox(height: 8),
-          Row(
-            children: const <Widget>[
-              _WeekdayHeader(label: 'Lun'),
-              _WeekdayHeader(label: 'Mar'),
-              _WeekdayHeader(label: 'Mié'),
-              _WeekdayHeader(label: 'Jue'),
-              _WeekdayHeader(label: 'Vie'),
-              _WeekdayHeader(label: 'Sáb'),
-              _WeekdayHeader(label: 'Dom'),
-            ],
-          ),
-          const SizedBox(height: 8),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: calendar.days.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 0.8,
+          Container(
+            padding: EdgeInsets.all(isCompactCalendar ? 8 : 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.94),
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
             ),
-            itemBuilder: (context, index) {
-              final day = calendar.days[index];
-              return InkWell(
-                onTap: () => _openDay(day),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: day.inCurrentMonth
-                        ? Colors.white
-                        : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: day.isToday
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey.shade300,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        '${day.dayNumber}',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: day.isToday
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+            child: Column(
+              children: <Widget>[
+                Row(
+                  children: weekdayLabels
+                      .map(
+                        (label) => _WeekdayHeader(
+                          label: label,
+                          compact: isCompactCalendar,
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Expanded(
-                        child: day.reservations.isEmpty
-                            ? const SizedBox.shrink()
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: day.reservations
-                                    .take(2)
-                                    .map(
-                                      (reservation) => Container(
-                                        width: double.infinity,
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 2,
-                                        ),
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.secondaryContainer,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          reservation.title,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.labelSmall,
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                      ),
-                      if (day.reservations.length > 2)
-                        Text(
-                          '+${day.reservations.length - 2} más',
-                          style: Theme.of(context).textTheme.labelSmall,
-                        ),
-                    ],
-                  ),
+                      )
+                      .toList(),
                 ),
-              );
-            },
+                SizedBox(height: isCompactCalendar ? 6 : 8),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: calendar.days.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    mainAxisSpacing: isCompactCalendar ? 4 : 8,
+                    crossAxisSpacing: isCompactCalendar ? 4 : 8,
+                    childAspectRatio: isCompactCalendar
+                        ? (isTightCalendar ? 0.78 : 0.92)
+                        : 0.8,
+                  ),
+                  itemBuilder: (context, index) {
+                    final day = calendar.days[index];
+                    return _CalendarDayTile(
+                      day: day,
+                      compact: isCompactCalendar,
+                      tight: isTightCalendar,
+                      onTap: day.reservations.isEmpty
+                          ? null
+                          : () => _openDay(day),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
         ],
@@ -782,17 +747,231 @@ class _CalendarTabState extends State<_CalendarTab> {
 }
 
 class _WeekdayHeader extends StatelessWidget {
-  const _WeekdayHeader({required this.label});
+  const _WeekdayHeader({required this.label, this.compact = false});
 
   final String label;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.labelMedium,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: compact ? 1 : 2),
+        padding: EdgeInsets.symmetric(vertical: compact ? 6 : 8),
+        decoration: BoxDecoration(
+          color: compact ? const Color(0xFFF1F5F8) : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: compact ? 11 : null,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CalendarDayTile extends StatelessWidget {
+  const _CalendarDayTile({
+    required this.day,
+    required this.compact,
+    required this.tight,
+    this.onTap,
+  });
+
+  final CalendarDay day;
+  final bool compact;
+  final bool tight;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final reservationCount = day.reservations.length;
+    final baseColor = day.inCurrentMonth ? Colors.white : Colors.grey.shade100;
+    final borderColor = day.isToday ? scheme.primary : Colors.grey.shade300;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(compact ? 14 : 12),
+      child: Container(
+        padding: EdgeInsets.all(compact ? (tight ? 4 : 6) : 8),
+        decoration: BoxDecoration(
+          color: baseColor,
+          borderRadius: BorderRadius.circular(compact ? 14 : 12),
+          border: Border.all(color: borderColor),
+        ),
+        child: compact
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Text(
+                        '${day.dayNumber}',
+                        style:
+                            (tight
+                                    ? theme.textTheme.labelMedium
+                                    : theme.textTheme.labelLarge)
+                                ?.copyWith(
+                                  fontWeight: day.isToday
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
+                                  color: day.inCurrentMonth
+                                      ? scheme.onSurface
+                                      : scheme.onSurface.withValues(
+                                          alpha: 0.46,
+                                        ),
+                                ),
+                      ),
+                      const Spacer(),
+                      if (day.isToday)
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: scheme.primary,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const Spacer(),
+                  if (reservationCount > 0)
+                    tight
+                        ? Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              constraints: const BoxConstraints(
+                                minWidth: 18,
+                                minHeight: 18,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: scheme.primary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                '$reservationCount',
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: scheme.primary,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: <Widget>[
+                              Expanded(
+                                child: Wrap(
+                                  spacing: 3,
+                                  runSpacing: 3,
+                                  children: <Widget>[
+                                    ...day.reservations
+                                        .take(3)
+                                        .map(
+                                          (_) => Container(
+                                            width: 6,
+                                            height: 6,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: scheme.primary,
+                                            ),
+                                          ),
+                                        ),
+                                    if (reservationCount > 3)
+                                      Text(
+                                        '+${reservationCount - 3}',
+                                        style: theme.textTheme.labelSmall
+                                            ?.copyWith(
+                                              color: scheme.primary,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: scheme.primary.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  '$reservationCount',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: scheme.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    '${day.dayNumber}',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: day.isToday
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Expanded(
+                    child: reservationCount == 0
+                        ? const SizedBox.shrink()
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: day.reservations
+                                .take(2)
+                                .map(
+                                  (reservation) => Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 2,
+                                    ),
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: scheme.secondaryContainer,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      reservation.title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.labelSmall,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                  ),
+                  if (reservationCount > 2)
+                    Text(
+                      '+${reservationCount - 2} más',
+                      style: theme.textTheme.labelSmall,
+                    ),
+                ],
+              ),
       ),
     );
   }
@@ -1210,8 +1389,7 @@ class _CancelReservationDialogState extends State<_CancelReservationDialog> {
   }
 
   void _handleReasonChanged(String value) {
-    if (_errorMessage == null &&
-        _selectedSuggestedReason == value.trim()) {
+    if (_errorMessage == null && _selectedSuggestedReason == value.trim()) {
       return;
     }
 
@@ -1290,9 +1468,7 @@ class _CancelReservationDialogState extends State<_CancelReservationDialog> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _selectedSuggestedReason,
-                decoration: const InputDecoration(
-                  labelText: 'Motivo sugerido',
-                ),
+                decoration: const InputDecoration(labelText: 'Motivo sugerido'),
                 items: _suggestedReasons
                     .map(
                       (reason) => DropdownMenuItem<String>(
