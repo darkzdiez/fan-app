@@ -60,9 +60,23 @@ La UI muestra un banner avisando cuando sigue usando esa URL por defecto.
 
 ### Web
 
+En Chrome:
+
 ```bash
 flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
 ```
+
+Como live preview en un servidor local:
+
+```bash
+flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+```
+
+Después abrí `http://127.0.0.1:3000/`.
+
+Si omitís `--dart-define=FAN_API_BASE_URL=...`, la app va a caer en `http://127.0.0.1:8000/api`, que solo sirve si también tenés un backend local levantado en ese puerto.
+
+Si querés apuntar a otro backend, reemplazá el valor de `FAN_API_BASE_URL`.
 
 ### Android
 
@@ -141,3 +155,24 @@ flutter build ios --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.
 - `plan.md`: seguimiento de tareas
 - `docs/ARCHITECTURE.md`: organización del código y decisiones
 - `docs/API_INTEGRATION.md`: endpoints y contratos usados por la app
+
+## Comandos útiles
+
+Actualizar Flutter, revisar dependencias, actualizarlas y levantar el preview web:
+
+```bash
+flutter upgrade \
+&& flutter pub outdated \
+&& flutter pub upgrade --major-versions \
+&& flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+```
+
+Actualizar Flutter, revisar dependencias, actualizarlas y generar APK release y debug:
+
+```bash
+flutter upgrade \
+&& flutter pub outdated \
+&& flutter pub upgrade --major-versions \
+&& flutter build apk --release \
+&& flutter build apk --debug
+```

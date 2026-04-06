@@ -123,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (AppEnvironment.usesDefaultApiBaseUrl)
                       const FanErrorBanner(
                         message:
-                            'La app está usando la URL por defecto. Para este ambiente podés ejecutarla con --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api',
+                            'La app está usando la URL por defecto http://127.0.0.1:8000/api. El puerto 3000 solo publica el frontend. Para este ambiente ejecutala con flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api',
                       ),
                     if (AppEnvironment.usesDefaultApiBaseUrl)
                       const SizedBox(height: 16),

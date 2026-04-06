@@ -148,7 +148,7 @@ class _OrganizationScreenState extends State<OrganizationScreen> {
     required bool imageOnly,
     required ValueChanged<SelectedFile?> onSelected,
   }) async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       allowMultiple: false,
       type: imageOnly ? FileType.image : FileType.any,
       withData: kIsWeb,
