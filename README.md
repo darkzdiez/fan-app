@@ -40,10 +40,10 @@ La app espera la URL completa del backend con `/api` incluido.
 Ejemplos:
 
 ```bash
-flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
-flutter build web --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
-flutter build apk --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
+flutter build web --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 flutter build apk --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
+flutter build ios --release --no-codesign --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
 
 ### URL por defecto
@@ -63,13 +63,13 @@ La UI muestra un banner avisando cuando sigue usando esa URL por defecto.
 En Chrome:
 
 ```bash
-flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
 
 Como live preview en un servidor local:
 
 ```bash
-flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
 
 Después abrí `http://127.0.0.1:3000/`.
@@ -81,7 +81,13 @@ Si querés apuntar a otro backend, reemplazá el valor de `FAN_API_BASE_URL`.
 ### Android
 
 ```bash
-flutter run -d android --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+flutter run -d android --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
+```
+
+### iOS
+
+```bash
+flutter run -d ios --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
 
 > Si más adelante querés apuntar a un backend local desde un emulador Android, podés usar `http://10.0.2.2:8000/api`.
@@ -91,7 +97,7 @@ flutter run -d android --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole
 Aunque el objetivo principal es iOS/Android/Web, el entorno quedó listo también para Linux desktop:
 
 ```bash
-flutter run -d linux --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+flutter run -d linux --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
 
 ## Builds
@@ -99,22 +105,35 @@ flutter run -d linux --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.c
 ### Web
 
 ```bash
-flutter build web --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+flutter build web --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
+
+Salida generada: `build/web/`
 
 ### Android APK
 
 ```bash
-flutter build apk --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+flutter build apk --release --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
+
+Salidas generadas:
+
+- release: `build/app/outputs/flutter-apk/app-release.apk`
+- debug: `build/app/outputs/flutter-apk/app-debug.apk`
 
 ### iOS
 
-La carpeta `ios/` ya está generada, pero la compilación final de iOS debe hacerse en macOS:
+La carpeta `ios/` ya está generada y la compilación final debe hacerse en macOS. En este entorno quedó validado el build sin firma:
 
 ```bash
-flutter build ios --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+flutter build ios --release --no-codesign --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
+
+Salida generada:
+
+- device build sin firma: `build/ios/iphoneos/Runner.app`
+
+Tanto el build `--release` como `--debug` sin firma dejan el bundle en esa misma ruta, así que el último build ejecutado sobrescribe el anterior.
 
 ## Funcionalidad incluida
 
@@ -164,14 +183,14 @@ Actualizar Flutter, revisar dependencias, actualizarlas y levantar el preview we
 flutter upgrade \
 && flutter pub outdated \
 && flutter pub upgrade --major-versions \
-&& flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+&& flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
 
 ```bash
 flutter upgrade \
 && flutter pub outdated \
 && flutter pub upgrade --major-versions \
-&& flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api
+&& flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
 
 Actualizar Flutter, revisar dependencias, actualizarlas y generar APK release y debug:
@@ -180,6 +199,16 @@ Actualizar Flutter, revisar dependencias, actualizarlas y generar APK release y 
 flutter upgrade \
 && flutter pub outdated \
 && flutter pub upgrade --major-versions \
-&& flutter build apk --release \
-&& flutter build apk --debug
+&& flutter build apk --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api --release \
+&& flutter build apk --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api --debug
+```
+
+Actualizar Flutter, revisar dependencias, actualizarlas y generar build iOS release y debug sin firma:
+
+```bash
+flutter upgrade \
+&& flutter pub outdated \
+&& flutter pub upgrade --major-versions \
+&& flutter build ios --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api --release --no-codesign \
+&& flutter build ios --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api --debug --no-codesign
 ```
