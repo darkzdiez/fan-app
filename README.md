@@ -110,6 +110,13 @@ flutter build web --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/a
 
 Salida generada: `build/web/`
 
+Notas de publicación:
+
+- no abras `build/web/index.html` con `file://`; el build web de Flutter debe servirse por HTTP/HTTPS
+- para probarlo localmente, podés servirlo así: `python3 -m http.server 8000 -d build/web`
+- al publicarlo, subí **todo el contenido** de `build/web/`, no solo `index.html`
+- si lo vas a publicar dentro de una subruta (por ejemplo `/fan/`), generá el build con `--base-href /fan/`
+
 ### Android APK
 
 ```bash
