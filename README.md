@@ -19,6 +19,7 @@ La app se mantuvo deliberadamente simple.
 Solo usa dependencias realmente necesarias:
 
 - `http`: cliente HTTP liviano
+- `mobile_scanner`: escaneo de QR con cámara y soporte de ingreso manual
 - `shared_preferences`: persistencia básica de sesión/token
 - `file_picker`: selección de archivos para logo y documentos de la incubada
 - `flutter_localizations`: localización del SDK para date pickers y widgets en castellano
@@ -160,6 +161,7 @@ Tanto el build `--release` como `--debug` sin firma dejan el bundle en esa misma
 
 - listado
 - detalle
+- reserva por QR desde el bottom bar
 - auto-reserva
 - mis reservas
 - cancelación
@@ -170,11 +172,17 @@ Tanto el build `--release` como `--debug` sin firma dejan el bundle en esa misma
 
 - listado
 - detalle
+- reserva por QR desde el bottom bar
 - auto-reserva
 - mis reservas
 - cancelación
 - calificación
 - calendario mensual
+
+## Permisos relevantes
+
+- el tab QR del bottom bar y el flujo de escaneo sólo se habilitan si el usuario autenticado tiene el permiso `bookable-resources-qr-scan`
+- ese permiso es independiente de los permisos para ver QR dentro del backoffice web de FAN
 
 ## Documentación adicional
 

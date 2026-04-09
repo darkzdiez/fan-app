@@ -97,6 +97,16 @@ Para equipos, la app permite `desde` / `hasta`:
 - elige inicio y fin
 - backend valida reglas y solapamientos
 
+### QR desde el bottom bar
+
+El tab QR del bottom bar no cambia de módulo: abre un flujo transversal que:
+
+- se habilita con el permiso genérico `bookable-resources-qr-scan`,
+- escanea con cámara cuando la plataforma lo soporta,
+- permite pegar manualmente la URL o el UUID del QR como fallback,
+- resuelve el recurso con `GET /api/bookable-resource/qr/{uuid}`,
+- reutiliza el mismo diálogo de reserva usado por salas y equipos.
+
 ## Validaciones que se delegan al backend
 
 Aunque la app hace algunas validaciones UX, la fuente de verdad sigue siendo la API:

@@ -1,3 +1,5 @@
+const String bookableResourcesQrScanPermission = 'bookable-resources-qr-scan';
+
 class BookableResourceTypeInfo {
   const BookableResourceTypeInfo({
     required this.title,
@@ -61,6 +63,17 @@ enum BookableResourceType {
   const BookableResourceType(this.info);
 
   final BookableResourceTypeInfo info;
+
+  static BookableResourceType? fromApiResourceType(String value) {
+    switch (value) {
+      case 'meeting-room':
+        return BookableResourceType.meetingRoom;
+      case 'lab-equipment':
+        return BookableResourceType.labEquipment;
+      default:
+        return null;
+    }
+  }
 }
 
 class BookableResource {
@@ -68,20 +81,43 @@ class BookableResource {
     required this.id,
     required this.name,
     required this.description,
+    this.uuid,
     this.fileUrl,
+    this.resourceType,
+    this.resourceTypeLabel,
+    this.qrPayload,
+    this.qrResolveUrl,
+    this.qrImageUrl,
+    this.deletedAt,
   });
 
   final int id;
   final String name;
   final String description;
+  final String? uuid;
   final String? fileUrl;
+  final String? resourceType;
+  final String? resourceTypeLabel;
+  final String? qrPayload;
+  final String? qrResolveUrl;
+  final String? qrImageUrl;
+  final String? deletedAt;
+
+  bool get isDeleted => deletedAt != null && deletedAt!.isNotEmpty;
 
   factory BookableResource.fromJson(Map<String, dynamic> json) {
     return BookableResource(
       id: (json['id'] as num?)?.toInt() ?? 0,
       name: (json['name'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
+      uuid: json['uuid']?.toString(),
       fileUrl: json['file_url']?.toString(),
+      resourceType: json['resource_type']?.toString(),
+      resourceTypeLabel: json['resource_type_label']?.toString(),
+      qrPayload: json['qr_payload']?.toString(),
+      qrResolveUrl: json['qr_resolve_url']?.toString(),
+      qrImageUrl: json['qr_image_url']?.toString(),
+      deletedAt: json['deleted_at']?.toString(),
     );
   }
 }
@@ -92,7 +128,14 @@ class ResourceDetail extends BookableResource {
     required super.name,
     required super.description,
     required this.reservations,
+    super.uuid,
     super.fileUrl,
+    super.resourceType,
+    super.resourceTypeLabel,
+    super.qrPayload,
+    super.qrResolveUrl,
+    super.qrImageUrl,
+    super.deletedAt,
   });
 
   final List<ReservationSummary> reservations;
@@ -116,8 +159,55 @@ class ResourceDetail extends BookableResource {
       id: (json['id'] as num?)?.toInt() ?? 0,
       name: (json['name'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
+      uuid: json['uuid']?.toString(),
       fileUrl: json['file_url']?.toString(),
+      resourceType: json['resource_type']?.toString(),
+      resourceTypeLabel: json['resource_type_label']?.toString(),
+      qrPayload: json['qr_payload']?.toString(),
+      qrResolveUrl: json['qr_resolve_url']?.toString(),
+      qrImageUrl: json['qr_image_url']?.toString(),
+      deletedAt: json['deleted_at']?.toString(),
       reservations: reservations,
+    );
+  }
+}
+
+class BookableQrResolution {
+  const BookableQrResolution({
+    required this.type,
+    required this.resourceTypeLabel,
+    required this.resource,
+  });
+
+  final BookableResourceType type;
+  final String resourceTypeLabel;
+  final BookableResource resource;
+
+  factory BookableQrResolution.fromJson(Map<String, dynamic> json) {
+    final resourceType = (json['resource_type'] ?? '').toString();
+    final type = BookableResourceType.fromApiResourceType(resourceType);
+
+    if (type == null) {
+      throw const FormatException(
+        'El QR no corresponde a un recurso soportado.',
+      );
+    }
+
+    final resourceJson =
+        Map<String, dynamic>.from(
+            json['resource'] as Map<String, dynamic>? ??
+                const <String, dynamic>{},
+          )
+          ..putIfAbsent('resource_type', () => resourceType)
+          ..putIfAbsent(
+            'resource_type_label',
+            () => (json['resource_type_label'] ?? '').toString(),
+          );
+
+    return BookableQrResolution(
+      type: type,
+      resourceTypeLabel: (json['resource_type_label'] ?? '').toString(),
+      resource: BookableResource.fromJson(resourceJson),
     );
   }
 }

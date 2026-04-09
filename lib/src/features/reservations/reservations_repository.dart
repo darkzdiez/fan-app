@@ -1,10 +1,15 @@
 import '../../core/api_client.dart';
+import '../../core/models.dart';
 import 'reservations_models.dart';
 
 class ReservationsRepository {
   ReservationsRepository(this.apiClient);
 
   final ApiClient apiClient;
+
+  static final RegExp _uuidRegExp = RegExp(
+    r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}',
+  );
 
   Future<List<BookableResource>> listResources(
     BookableResourceType type, {
@@ -31,6 +36,20 @@ class ReservationsRepository {
       '${type.info.resourcePath}/$resourceId',
     );
     return ResourceDetail.fromJson(json, type);
+  }
+
+  Future<BookableQrResolution> resolveQr(String rawValue) async {
+    final uuid = _extractUuid(rawValue);
+
+    if (uuid == null) {
+      throw ApiException(
+        statusCode: 422,
+        message: 'El código QR no pertenece a un recurso FAN válido.',
+      );
+    }
+
+    final json = await apiClient.getJsonMap('/bookable-resource/qr/$uuid');
+    return BookableQrResolution.fromJson(json);
   }
 
   Future<List<ReservationSummary>> fetchMyReservations(
@@ -130,5 +149,15 @@ class ReservationsRepository {
     );
 
     return ReservationCalendarResponse.fromJson(json);
+  }
+
+  String? _extractUuid(String rawValue) {
+    final trimmed = rawValue.trim();
+
+    if (trimmed.isEmpty) {
+      return null;
+    }
+
+    return _uuidRegExp.firstMatch(trimmed)?.group(0)?.toLowerCase();
   }
 }

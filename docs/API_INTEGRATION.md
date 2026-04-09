@@ -119,6 +119,7 @@ Usada para reservas:
 
 - `POST /api/meeting-room/`
 - `GET /api/meeting-room/{id}`
+- `GET /api/bookable-resource/qr/{uuid}`
 
 ### Reservas
 
@@ -135,6 +136,7 @@ Usada para reservas:
 
 - `POST /api/lab-equipment/`
 - `GET /api/lab-equipment/{id}`
+- `GET /api/bookable-resource/qr/{uuid}`
 
 ### Reservas
 
@@ -150,3 +152,5 @@ Usada para reservas:
 - Todas las requests autenticadas mandan `Authorization: Bearer {token}`.
 - Los POST salen en multipart/form-data para mantener consistencia con el backend actual.
 - La app está pensada para incubadas, así que no expone flujos administrativos completos.
+- El flujo QR extrae el UUID desde el valor escaneado y después resuelve el recurso usando el backend actual, sin depender del host embebido en el código QR.
+- El acceso al escáner de la app se controla con el permiso genérico `bookable-resources-qr-scan`, separado de los permisos de ver QR en el backoffice.
