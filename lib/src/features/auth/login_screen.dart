@@ -314,57 +314,66 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF7FAFC),
-                                    borderRadius: BorderRadius.circular(18),
-                                    border: Border.all(
-                                      color: scheme.outline.withValues(
-                                        alpha: 0.9,
-                                      ),
+                                if (AppEnvironment.showDeveloperAnnotations) ...<
+                                  Widget
+                                >[
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 12,
                                     ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cloud_outlined,
-                                        size: 18,
-                                        color: scheme.primary,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Text(
-                                              'API actual',
-                                              style: theme.textTheme.labelMedium
-                                                  ?.copyWith(
-                                                    color: FanAppTheme.muted,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              AppEnvironment.apiBaseUrl,
-                                              style: theme.textTheme.bodySmall
-                                                  ?.copyWith(
-                                                    color: FanAppTheme.ink,
-                                                  ),
-                                            ),
-                                          ],
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF7FAFC),
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(
+                                        color: scheme.outline.withValues(
+                                          alpha: 0.9,
                                         ),
                                       ),
-                                    ],
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.cloud_outlined,
+                                          size: 18,
+                                          color: scheme.primary,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text(
+                                                'API actual',
+                                                style: theme
+                                                    .textTheme
+                                                    .labelMedium
+                                                    ?.copyWith(
+                                                      color:
+                                                          FanAppTheme.muted,
+                                                    ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                AppEnvironment.apiBaseUrl,
+                                                style: theme
+                                                    .textTheme
+                                                    .bodySmall
+                                                    ?.copyWith(
+                                                      color: FanAppTheme.ink,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
+                                ],
                               ],
                             ),
                           ),

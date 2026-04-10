@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Configuración de entorno de la app.
 ///
 /// La URL base se inyecta con `--dart-define=FAN_API_BASE_URL=...` para poder
@@ -21,4 +23,6 @@ class AppEnvironment {
   }
 
   static bool get usesDefaultApiBaseUrl => apiBaseUrl == _defaultApiBaseUrl;
+
+  static bool get showDeveloperAnnotations => !kReleaseMode;
 }

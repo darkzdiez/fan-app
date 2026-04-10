@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_environment.dart';
 import 'branding.dart';
 
 class FanLoadingView extends StatelessWidget {
@@ -96,6 +97,8 @@ class SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final visibleSubtitle =
+        AppEnvironment.showDeveloperAnnotations ? subtitle : null;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -109,7 +112,7 @@ class SectionCard extends StatelessWidget {
               children: <Widget>[
                 Container(
                   width: 5,
-                  height: subtitle == null ? 28 : 44,
+                  height: visibleSubtitle == null ? 28 : 44,
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primary,
                     borderRadius: BorderRadius.circular(999),
@@ -121,9 +124,12 @@ class SectionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(title, style: theme.textTheme.titleMedium),
-                      if (subtitle != null) ...<Widget>[
+                      if (visibleSubtitle != null) ...<Widget>[
                         const SizedBox(height: 4),
-                        Text(subtitle!, style: theme.textTheme.bodySmall),
+                        Text(
+                          visibleSubtitle,
+                          style: theme.textTheme.bodySmall,
+                        ),
                       ],
                     ],
                   ),
