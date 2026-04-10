@@ -41,9 +41,10 @@ La app espera la URL completa del backend con `/api` incluido.
 Ejemplos:
 
 ```bash
+flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api --release
 flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
-flutter build web --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
-flutter build apk --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
+flutter build web --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api --release
+flutter build apk --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api --release
 flutter build ios --release --no-codesign --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
 
