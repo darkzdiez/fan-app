@@ -22,6 +22,7 @@ Solo usa dependencias realmente necesarias:
 - `mobile_scanner`: escaneo de QR con cámara y soporte de ingreso manual
 - `shared_preferences`: persistencia básica de sesión/token
 - `file_picker`: selección de archivos para logo y documentos de la incubada
+- `url_launcher`: apertura del archivo actual adjunto desde la UI
 - `flutter_localizations`: localización del SDK para date pickers y widgets en castellano
 
 ## Requisitos del entorno
@@ -67,6 +68,25 @@ En Chrome:
 ```bash
 flutter run -d chrome --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
+
+### Desarrollo en VS Code
+
+El workspace incluye configuración lista para desarrollo web en VS Code:
+
+- `.vscode/launch.json`: perfil `FAN App Web` para correr en Chrome en modo debug
+- `.vscode/settings.json`: auto-save + hot reload al guardar
+- `.vscode/extensions.json`: recomienda las extensiones `Dart` y `Flutter`
+
+Flujo recomendado:
+
+1. instalá las extensiones `Dart` y `Flutter` en VS Code
+2. abrí `Run and Debug`
+3. elegí `FAN App Web`
+4. corré con `F5`
+
+Con esa sesión, los cambios sobre archivos de `lib/` se guardan automáticamente y disparan hot reload.
+
+Si corrés la app manualmente con `flutter run` en terminal, el hot reload sigue dependiendo de presionar `r` en esa terminal.
 
 Como live preview en un servidor local:
 
@@ -157,6 +177,8 @@ Tanto el build `--release` como `--debug` sin firma dejan el bundle en esa misma
 - leer datos desde `/api/incubada`
 - editar campos principales y vigencias
 - subir logo y documentos por multipart
+- abrir el archivo actualmente cargado desde un botón de la UI
+- reemplazar archivos existentes sin exponer la URL cruda en pantalla
 
 ### Salas de reunión
 
@@ -190,6 +212,9 @@ Tanto el build `--release` como `--debug` sin firma dejan el bundle en esa misma
 - `plan.md`: seguimiento de tareas
 - `docs/ARCHITECTURE.md`: organización del código y decisiones
 - `docs/API_INTEGRATION.md`: endpoints y contratos usados por la app
+- `.vscode/launch.json`: perfil de ejecución web para VS Code
+- `.vscode/settings.json`: hot reload al guardar en sesiones debug de Flutter
+- `.vscode/extensions.json`: recomendaciones de extensiones para Dart y Flutter
 
 ## Comandos útiles
 

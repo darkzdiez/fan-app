@@ -261,7 +261,7 @@ class _OrganizationScreenState extends State<OrganizationScreen> {
     required VoidCallback onClear,
   }) {
     final hasCurrentFile = currentUrl != null && currentUrl.isNotEmpty;
-    final currentUri = hasCurrentFile ? Uri.tryParse(currentUrl!) : null;
+    final currentUri = hasCurrentFile ? Uri.tryParse(currentUrl) : null;
     final canOpenCurrentFile = currentUri != null && currentUri.hasScheme;
 
     return SizedBox(
@@ -483,7 +483,7 @@ class _OrganizationScreenState extends State<OrganizationScreen> {
             ),
           ),
           SectionCard(
-            title: 'Archivos adjuntos 2',
+            title: 'Archivos adjuntos',
             subtitle:
                 'Los uploads se envían por multipart como en la app web actual.',
             child: Column(

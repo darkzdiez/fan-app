@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "FAN App Web",
+      "type": "dart",
+      "request": "launch",
+      "flutterMode": "debug",
+      "deviceId": "chrome",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--dart-define",
+        "FAN_API_BASE_URL=https://alfonzo-work.osole.com.ar:8448/api"
+      ]
+    }
+  ]
+}
