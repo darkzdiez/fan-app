@@ -72,6 +72,8 @@ class _RootScreen extends StatelessWidget {
 class _MainShell extends StatelessWidget {
   const _MainShell();
 
+  static const String _organizationPermission = 'incubada-edit-incubada';
+
   static const List<String> _titles = <String>[
     'Salas de reunión',
     'Equipos de laboratorio',
@@ -83,7 +85,19 @@ class _MainShell extends StatelessWidget {
     return user.userCan(bookableResourcesQrScanPermission);
   }
 
-  int _navigationIndexForTab(int tabIndex, bool hasQrAccess) {
+  bool _hasOrganizationAccess(AppUser user) {
+    return user.userCan(_organizationPermission);
+  }
+
+  int _navigationIndexForTab(
+    int tabIndex,
+    bool hasQrAccess,
+    bool hasOrganizationAccess,
+  ) {
+    if (!hasOrganizationAccess && tabIndex >= 2) {
+      return hasQrAccess ? 3 : 2;
+    }
+
     if (!hasQrAccess) {
       return tabIndex;
     }
@@ -95,7 +109,19 @@ class _MainShell extends StatelessWidget {
     return tabIndex + 1;
   }
 
-  int _tabIndexForNavigationIndex(int navigationIndex, bool hasQrAccess) {
+  int _tabIndexForNavigationIndex(
+    int navigationIndex,
+    bool hasQrAccess,
+    bool hasOrganizationAccess,
+  ) {
+    if (!hasOrganizationAccess) {
+      if (navigationIndex < 2) {
+        return navigationIndex;
+      }
+
+      return 3;
+    }
+
     if (!hasQrAccess) {
       return navigationIndex;
     }
@@ -111,6 +137,7 @@ class _MainShell extends StatelessWidget {
     BuildContext context,
     int index,
     bool hasQrAccess,
+    bool hasOrganizationAccess,
   ) {
     final controller = AppScope.of(context);
 
@@ -120,7 +147,7 @@ class _MainShell extends StatelessWidget {
     }
 
     controller.setSelectedTabIndex(
-      _tabIndexForNavigationIndex(index, hasQrAccess),
+      _tabIndexForNavigationIndex(index, hasQrAccess, hasOrganizationAccess),
     );
   }
 
@@ -129,9 +156,14 @@ class _MainShell extends StatelessWidget {
     final controller = AppScope.of(context);
     final user = controller.currentUser!;
     final hasQrAccess = _hasQrAccess(user);
+    final hasOrganizationAccess = _hasOrganizationAccess(user);
+    final activeTabIndex = !hasOrganizationAccess && controller.selectedTabIndex == 2
+        ? 3
+        : controller.selectedTabIndex;
     final selectedNavigationIndex = _navigationIndexForTab(
-      controller.selectedTabIndex,
+      activeTabIndex,
       hasQrAccess,
+      hasOrganizationAccess,
     );
 
     final destinations = <NavigationDestination>[
@@ -151,11 +183,12 @@ class _MainShell extends StatelessWidget {
           selectedIcon: Icon(Icons.qr_code_scanner),
           label: 'QR',
         ),
-      const NavigationDestination(
-        icon: Icon(Icons.apartment_outlined),
-        selectedIcon: Icon(Icons.apartment),
-        label: 'Incubada',
-      ),
+      if (hasOrganizationAccess)
+        const NavigationDestination(
+          icon: Icon(Icons.apartment_outlined),
+          selectedIcon: Icon(Icons.apartment),
+          label: 'Incubada',
+        ),
       const NavigationDestination(
         icon: Icon(Icons.person_outline),
         selectedIcon: Icon(Icons.person),
@@ -165,7 +198,7 @@ class _MainShell extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[controller.selectedTabIndex]),
+        title: Text(_titles[activeTabIndex]),
         actions: <Widget>[
           IconButton(
             tooltip: 'Recargar sesión',
@@ -200,7 +233,7 @@ class _MainShell extends StatelessWidget {
             ),
           Expanded(
             child: IndexedStack(
-              index: controller.selectedTabIndex,
+              index: activeTabIndex,
               children: const <Widget>[
                 BookableModuleScreen(type: BookableResourceType.meetingRoom),
                 BookableModuleScreen(type: BookableResourceType.labEquipment),
@@ -214,7 +247,12 @@ class _MainShell extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedNavigationIndex,
         onDestinationSelected: (index) =>
-            _handleDestinationSelected(context, index, hasQrAccess),
+            _handleDestinationSelected(
+              context,
+              index,
+              hasQrAccess,
+              hasOrganizationAccess,
+            ),
         destinations: destinations,
       ),
     );
