@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/link.dart';
 
 import '../../core/app_scope.dart';
 import '../../core/models.dart';
@@ -259,41 +260,107 @@ class _OrganizationScreenState extends State<OrganizationScreen> {
     required VoidCallback onPick,
     required VoidCallback onClear,
   }) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(title, style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
-            if (currentUrl != null && currentUrl.isNotEmpty)
-              SelectableText('Archivo actual: $currentUrl'),
-            if (selectedFile != null)
-              Text('Archivo seleccionado: ${selectedFile.fileName}'),
-            if ((currentUrl == null || currentUrl.isEmpty) &&
-                selectedFile == null)
-              const Text('Todavía no hay archivo asociado.'),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: <Widget>[
-                OutlinedButton.icon(
-                  onPressed: onPick,
-                  icon: const Icon(Icons.attach_file),
-                  label: const Text('Seleccionar archivo'),
-                ),
-                if (selectedFile != null)
-                  TextButton.icon(
-                    onPressed: onClear,
-                    icon: const Icon(Icons.close),
-                    label: const Text('Quitar selección'),
+    final hasCurrentFile = currentUrl != null && currentUrl.isNotEmpty;
+    final currentUri = hasCurrentFile ? Uri.tryParse(currentUrl!) : null;
+    final canOpenCurrentFile = currentUri != null && currentUri.hasScheme;
+
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(title, style: Theme.of(context).textTheme.titleSmall),
+              if (hasCurrentFile) ...<Widget>[
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
                   ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Icon(
+                        Icons.insert_drive_file_outlined,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              'Archivo actual cargado',
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Podés abrirlo o reemplazarlo por uno nuevo.',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
-            ),
-          ],
+              if (selectedFile != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    'Archivo seleccionado: ${selectedFile.fileName}',
+                  ),
+                ),
+              if (!hasCurrentFile &&
+                  selectedFile == null)
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Text('Todavía no hay archivo asociado.'),
+                ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: <Widget>[
+                  if (canOpenCurrentFile)
+                    Link(
+                      uri: currentUri,
+                      target: LinkTarget.blank,
+                      builder: (context, followLink) => FilledButton.tonalIcon(
+                        onPressed: followLink,
+                        icon: const Icon(Icons.open_in_new),
+                        label: const Text('Abrir archivo'),
+                      ),
+                    ),
+                  OutlinedButton.icon(
+                    onPressed: onPick,
+                    icon: const Icon(Icons.attach_file),
+                    label: Text(
+                      hasCurrentFile
+                          ? 'Reemplazar archivo'
+                          : 'Seleccionar archivo',
+                    ),
+                  ),
+                  if (selectedFile != null)
+                    TextButton.icon(
+                      onPressed: onClear,
+                      icon: const Icon(Icons.close),
+                      label: const Text('Quitar selección'),
+                    ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -416,7 +483,7 @@ class _OrganizationScreenState extends State<OrganizationScreen> {
             ),
           ),
           SectionCard(
-            title: 'Archivos adjuntos',
+            title: 'Archivos adjuntos 2',
             subtitle:
                 'Los uploads se envían por multipart como en la app web actual.',
             child: Column(
