@@ -88,10 +88,9 @@ class AppController extends ChangeNotifier {
       );
     }
 
-    final googleSignIn = GoogleSignIn(
-      scopes: const <String>['email'],
-      serverClientId: AppEnvironment.googleWebClientId,
-    );
+    final googleSignIn = _createGoogleSignIn();
+
+    await _resetGoogleAccountSelection(googleSignIn);
 
     final googleUser = await googleSignIn.signIn();
 
@@ -99,20 +98,40 @@ class AppController extends ChangeNotifier {
       return false;
     }
 
-    final googleAuth = await googleUser.authentication;
-    final idToken = googleAuth.idToken?.trim() ?? '';
+    try {
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken?.trim() ?? '';
 
-    if (idToken.isEmpty) {
-      throw StateError(
-        'Google no devolvió un token de identidad válido para continuar.',
-      );
+      if (idToken.isEmpty) {
+        throw StateError(
+          'Google no devolvió un token de identidad válido para continuar.',
+        );
+      }
+
+      final session = await _authRepository.loginWithGoogle(idToken: idToken);
+
+      await _applyAuthenticatedSession(session);
+
+      return true;
+    } catch (_) {
+      await _resetGoogleAccountSelection(googleSignIn);
+      rethrow;
     }
+  }
 
-    final session = await _authRepository.loginWithGoogle(idToken: idToken);
+  GoogleSignIn _createGoogleSignIn() {
+    return GoogleSignIn(
+      scopes: const <String>['email'],
+      serverClientId: AppEnvironment.googleWebClientId,
+    );
+  }
 
-    await _applyAuthenticatedSession(session);
-
-    return true;
+  Future<void> _resetGoogleAccountSelection(GoogleSignIn googleSignIn) async {
+    try {
+      await googleSignIn.signOut();
+    } catch (_) {
+      // Ignorado: si no había una cuenta previa elegida, no hace falta actuar.
+    }
   }
 
   Future<void> _applyAuthenticatedSession(AppSession session) async {
