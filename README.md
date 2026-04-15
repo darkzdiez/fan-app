@@ -19,6 +19,7 @@ La app se mantuvo deliberadamente simple.
 Solo usa dependencias realmente necesarias:
 
 - `http`: cliente HTTP liviano
+- `google_sign_in`: inicio de sesión con Google para Android
 - `mobile_scanner`: escaneo de QR con cámara y soporte de ingreso manual
 - `shared_preferences`: persistencia básica de sesión/token
 - `file_picker`: selección de archivos para logo y documentos de la incubada
@@ -106,11 +107,36 @@ Si querés apuntar a otro backend, reemplazá el valor de `FAN_API_BASE_URL`.
 flutter run -d android --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
 
+#### Login con Google en Android
+
+La app incluye el botón `Continuar con Google` solo en Android.
+
+Requisitos para que funcione:
+
+- el backend FAN debe exponer `POST /api/external/auth/google`
+- el mail de Google debe existir en `users.email`
+- el cliente OAuth web debe permitir el uso del mismo `client_id` como `serverClientId` para obtener el `id_token`
+
+Archivos versionados en el repo:
+
+- `android/app/google-oauth-client.json`: credencial Android entregada por Google Cloud
+- `ios/Runner/GoogleService-Info.plist`: plist iOS versionado para uso futuro
+
+Override opcional del client ID web usado por Android:
+
+```bash
+flutter run -d android \
+	--dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api \
+	--dart-define=FAN_GOOGLE_WEB_CLIENT_ID=160522199946-9dnsan0lj8kiv3ecq6puapa1972am42i.apps.googleusercontent.com
+```
+
 ### iOS
 
 ```bash
 flutter run -d ios --dart-define=FAN_API_BASE_URL=https://fan-test.osole.com.ar/api
 ```
+
+> El plist iOS ya quedó versionado, pero el flujo funcional de Google Sign-In en iOS no forma parte de esta primera etapa.
 
 > Si más adelante querés apuntar a un backend local desde un emulador Android, podés usar `http://10.0.2.2:8000/api`.
 

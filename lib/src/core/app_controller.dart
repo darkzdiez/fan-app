@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../features/auth/auth_repository.dart';
 import 'api_client.dart';
@@ -71,6 +72,50 @@ class AppController extends ChangeNotifier {
       password: password,
     );
 
+    await _applyAuthenticatedSession(session);
+  }
+
+  Future<bool> signInWithGoogle() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      throw UnsupportedError(
+        'Google Sign-In solo está habilitado en Android en esta etapa.',
+      );
+    }
+
+    if (!AppEnvironment.hasGoogleWebClientId) {
+      throw StateError(
+        'No hay un client ID web configurado para Google Sign-In.',
+      );
+    }
+
+    final googleSignIn = GoogleSignIn(
+      scopes: const <String>['email'],
+      serverClientId: AppEnvironment.googleWebClientId,
+    );
+
+    final googleUser = await googleSignIn.signIn();
+
+    if (googleUser == null) {
+      return false;
+    }
+
+    final googleAuth = await googleUser.authentication;
+    final idToken = googleAuth.idToken?.trim() ?? '';
+
+    if (idToken.isEmpty) {
+      throw StateError(
+        'Google no devolvió un token de identidad válido para continuar.',
+      );
+    }
+
+    final session = await _authRepository.loginWithGoogle(idToken: idToken);
+
+    await _applyAuthenticatedSession(session);
+
+    return true;
+  }
+
+  Future<void> _applyAuthenticatedSession(AppSession session) async {
     apiClient.authToken = session.token;
 
     final reservationConfig = await _authRepository.fetchReservationConfig();

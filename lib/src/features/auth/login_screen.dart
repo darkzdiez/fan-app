@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/app_environment.dart';
@@ -20,7 +21,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isSubmitting = false;
+  bool _isGoogleSubmitting = false;
   String? _errorMessage;
+
+  bool get _supportsGoogleSignIn =>
+      !kIsWeb &&
+      defaultTargetPlatform == TargetPlatform.android &&
+      AppEnvironment.hasGoogleWebClientId;
 
   @override
   void dispose() {
@@ -32,6 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit() async {
     setState(() {
       _isSubmitting = true;
+      _isGoogleSubmitting = false;
       _errorMessage = null;
     });
 
@@ -52,6 +60,38 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         setState(() {
           _isSubmitting = false;
+          _isGoogleSubmitting = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _submitGoogle() async {
+    setState(() {
+      _isSubmitting = true;
+      _isGoogleSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final authenticated = await AppScope.of(context).signInWithGoogle();
+
+      if (!authenticated || !mounted) {
+        return;
+      }
+    } on ApiException catch (error) {
+      setState(() {
+        _errorMessage = collapseApiException(error);
+      });
+    } catch (error) {
+      setState(() {
+        _errorMessage = describeUnexpectedError(error);
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+          _isGoogleSubmitting = false;
         });
       }
     }
@@ -297,7 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                     ),
                                     onPressed: _isSubmitting ? null : _submit,
-                                    icon: _isSubmitting
+                                    icon: _isSubmitting && !_isGoogleSubmitting
                                         ? const SizedBox(
                                             width: 18,
                                             height: 18,
@@ -308,15 +348,88 @@ class _LoginScreenState extends State<LoginScreen> {
                                           )
                                         : const Icon(Icons.login_rounded),
                                     label: Text(
-                                      _isSubmitting
+                                      _isSubmitting && !_isGoogleSubmitting
                                           ? 'Validando credenciales...'
                                           : 'Iniciar sesión',
                                     ),
                                   ),
                                 ),
-                                if (AppEnvironment.showDeveloperAnnotations) ...<
-                                  Widget
-                                >[
+                                if (_supportsGoogleSignIn) ...<Widget>[
+                                  const SizedBox(height: 18),
+                                  Row(
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Divider(
+                                          color: scheme.outline.withValues(
+                                            alpha: 0.7,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: Text(
+                                          'o continuar con',
+                                          style: theme.textTheme.labelMedium
+                                              ?.copyWith(
+                                                color: FanAppTheme.muted,
+                                                letterSpacing: 0.3,
+                                              ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Divider(
+                                          color: scheme.outline.withValues(
+                                            alpha: 0.7,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 18),
+                                  SizedBox(
+                                    height: 56,
+                                    child: OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        side: BorderSide(
+                                          color: scheme.outline.withValues(
+                                            alpha: 0.75,
+                                          ),
+                                        ),
+                                        textStyle: theme.textTheme.titleSmall
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                      onPressed: _isSubmitting
+                                          ? null
+                                          : _submitGoogle,
+                                      icon: _isSubmitting && _isGoogleSubmitting
+                                          ? SizedBox(
+                                              width: 18,
+                                              height: 18,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: scheme.primary,
+                                              ),
+                                            )
+                                          : const _GoogleBadge(),
+                                      label: Text(
+                                        _isSubmitting && _isGoogleSubmitting
+                                            ? 'Conectando con Google...'
+                                            : 'Continuar con Google',
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                if (AppEnvironment
+                                    .showDeveloperAnnotations) ...<Widget>[
                                   const SizedBox(height: 16),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
@@ -353,16 +466,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                                     .textTheme
                                                     .labelMedium
                                                     ?.copyWith(
-                                                      color:
-                                                          FanAppTheme.muted,
+                                                      color: FanAppTheme.muted,
                                                     ),
                                               ),
                                               const SizedBox(height: 2),
                                               Text(
                                                 AppEnvironment.apiBaseUrl,
-                                                style: theme
-                                                    .textTheme
-                                                    .bodySmall
+                                                style: theme.textTheme.bodySmall
                                                     ?.copyWith(
                                                       color: FanAppTheme.ink,
                                                     ),
@@ -386,6 +496,32 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _GoogleBadge extends StatelessWidget {
+  const _GoogleBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 24,
+      height: 24,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFD6DCE3)),
+      ),
+      child: const Text(
+        'G',
+        style: TextStyle(
+          color: Color(0xFF4285F4),
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+        ),
       ),
     );
   }

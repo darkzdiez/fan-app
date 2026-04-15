@@ -20,6 +20,22 @@ class AuthRepository {
       },
     );
 
+    return _sessionFromAuthJson(json);
+  }
+
+  Future<AppSession> loginWithGoogle({
+    required String idToken,
+    String deviceName = 'Flutter FAN Android',
+  }) async {
+    final json = await apiClient.postForm(
+      '/external/auth/google',
+      fields: <String, String>{'id_token': idToken, 'device_name': deviceName},
+    );
+
+    return _sessionFromAuthJson(json);
+  }
+
+  AppSession _sessionFromAuthJson(Map<String, dynamic> json) {
     final token = (json['access_token'] ?? json['token'] ?? '')
         .toString()
         .trim();
